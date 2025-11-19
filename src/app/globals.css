@@ -17,6 +17,7 @@
   --white: #ffffff;
   --success: #66bb6a;
   --success-accent: #defbe6;
+  --custom-red: #dc1e3e;
 }
 
 body {
@@ -38,4 +39,8 @@ body {
 
 #custom-code-component {
   all: unset;
+}
+
+html {
+  scroll-behavior: smooth;
 }

@@ -4,17 +4,17 @@ import { TopProgressBar } from "@/components/TopProgressBar";
 
 export async function generateMetadata() {
   return {
-    title: "Nepal Can Move",
+    title: "Can International",
     description:
-      "Nepal Can Move: A top courier company in Nepal offering fast, secure, and reliable national & international delivery services. Contact us !",
+      "Can International: Nepal’s trusted logistics company specializing in fast, secure, and affordable international shipping.",
     icons: {
       icon: "/favicon.png",
     },
 
     openGraph: {
-      title: "Nepal Can Move",
+      title: "Can International",
       description:
-        "Nepal Can Move: A top courier company in Nepal offering fast, secure, and reliable national & international delivery services. Contact us !",
+        "Can International: Nepal’s trusted logistics company specializing in fast, secure, and affordable international shipping.",
       images: ["/meta-image.jpg"],
     },
   };
