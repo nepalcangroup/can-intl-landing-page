@@ -72,7 +72,7 @@ export const services = [
   },
 
   {
-    slug:"Real-Time-Tracking",
+    slug:"real-time-tracking",
     title: "Real-Time Tracking",
     description:
       "Monitor your shipments in real time with our advanced tracking technology.",

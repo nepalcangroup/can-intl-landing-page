@@ -1,7 +1,6 @@
 "use client";
 
-import lottie from "lottie-web";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const LottieAnimationWrapper = ({
   animationData,
@@ -10,8 +9,18 @@ const LottieAnimationWrapper = ({
   style = {},
 }) => {
   const containerRef = useRef(null);
+  const [lottie, setLottie] = useState(null);
 
   useEffect(() => {
+    // Dynamically import lottie-web only on the client side
+    import("lottie-web").then((lottieModule) => {
+      setLottie(lottieModule.default);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!lottie || !containerRef.current) return;
+
     const animationInstance = lottie.loadAnimation({
       container: containerRef.current,
       renderer: "svg",
@@ -23,7 +32,7 @@ const LottieAnimationWrapper = ({
     return () => {
       animationInstance.destroy();
     };
-  }, [animationData, loop, autoplay]);
+  }, [lottie, animationData, loop, autoplay]);
 
   return <div ref={containerRef} style={style}></div>;
 };
