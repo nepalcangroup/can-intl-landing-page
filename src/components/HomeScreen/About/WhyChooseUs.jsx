@@ -26,10 +26,15 @@ const WhyChooseUs = () => {
         {stats.map((stat, idx) => (
           <div
             key={idx}
-            className="bg-[var(--custom-red)] text-white rounded-lg p-6 flex flex-col items-start"
+            className="bg-[var(--custom-red)] text-white rounded-lg p-4 sm:p-6 
+                 flex flex-col items-center text-center"
           >
-            <h3 className="text-2xl font-bold mb-2">{stat.label}</h3>
-            <p>{stat.description}</p>
+            <h3 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">
+              {stat.label}
+            </h3>
+            <p className="text-xs sm:text-sm leading-snug">
+              {stat.description}
+            </p>
           </div>
         ))}
       </div>
