@@ -24,6 +24,11 @@ export default function Navbar() {
     { label: "FAQ", href: "#faq" },
     { label: "CONTACT US", href: "#contact" },
     { label: "CARRER", external: true },
+    {
+      label: "CAREER",
+      href: "https://bayupayu.com/vacancy/NCG?page=1",
+      external: true,
+    },
   ];
 
   const servicesNav = [
@@ -31,28 +36,29 @@ export default function Navbar() {
     { label: "Ocean Freight", slug: "ocean-freight" },
     { label: "Land Transport", slug: "land-transport" },
     { label: "Customs Clearance", slug: "customs-clearance" },
-    {label: "24/7 Customer Support",slug:"customer-support"},
-    {label: "Real Time Tracking", slug : "real-time-tracking"}
+    { label: "24/7 Customer Support", slug: "customer-support" },
+    { label: "Real Time Tracking", slug: "real-time-tracking" },
   ];
 
   const scrollToSection = (sectionId) => {
-  const section = document.querySelector(sectionId);
-  if (section) {
-    const navbarHeight = 80; 
-    const offset = section.getBoundingClientRect().top + window.scrollY - navbarHeight;
-    window.scrollTo({
-      top: offset,
-      behavior: "smooth",
-    });
-  }
-};
+    const section = document.querySelector(sectionId);
+    if (section) {
+      const navbarHeight = 80;
+      const offset =
+        section.getBoundingClientRect().top + window.scrollY - navbarHeight;
+      window.scrollTo({
+        top: offset,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const updateActiveNavItem = () => {
     if (pathname !== "/") return;
 
     for (let i = navItems.length - 1; i >= 0; i--) {
       const href = navItems[i].href;
-      if (!href) continue;
+      if (!href || navItems[i].external) continue;
       const element = document.querySelector(href);
       if (element) {
         const rect = element.getBoundingClientRect();
@@ -105,31 +111,31 @@ export default function Navbar() {
     }
   }, [pathname]);
 
-const handleNavClick = (e, item) => {
-  e.preventDefault();
+  const handleNavClick = (e, item) => {
+    e.preventDefault();
 
-  setMenuOpen(false);
-  setServicesOpen(false);
+    setMenuOpen(false);
+    setServicesOpen(false);
 
-  if (item.label === "CARRER") {
-    window.open("https://bayupayu.com/vacancy/NCG?page=1", "_blank");
-    return;
-  }
+    if (item.external) {
+      window.open(item.href, "_blank", "noopener,noreferrer");
+      return;
+    }
 
-  if (item.href?.startsWith("#")) {
-    const targetUrl = `/${item.href}`; 
+    if (item.href?.startsWith("#")) {
+      const targetUrl = `/${item.href}`;
 
-    router.push(targetUrl);
-    setActive(item.label);
+      router.push(targetUrl);
+      setActive(item.label);
 
-    return;
-  }
+      return;
+    }
 
-  // Real pages in the future
-  if (item.href) {
-    router.push(item.href);
-  }
-};
+    // Real pages in the future
+    if (item.href) {
+      router.push(item.href);
+    }
+  };
 
   return (
     <header
