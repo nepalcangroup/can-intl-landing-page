@@ -2,8 +2,8 @@ import React from "react";
 
 export default function privacy() {
   return (
-    <div className="bg-gray-200 min-h-screen">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg px-8 pb-10 pt-[100px] text-gray-800 text-justify leading-relaxed">
+    <div className="bg-gray-200 pt-[60px] pb-[10px]">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg px-8 pb-10  text-gray-800 text-justify leading-relaxed">
         <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
         <p className="mb-4">Last updated: November 17, 2025</p>
 

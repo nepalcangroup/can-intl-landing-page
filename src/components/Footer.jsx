@@ -48,7 +48,7 @@ export default function Footer() {
           <div className="flex items-start gap-2 mb-2">
             <LocationOn fontSize="small" />
             <p className="text-sm">
-              Nepal Can Move (NCM),Tinkune,Muni Bhairab Marg, Kathmandu 44600
+              Nepal Can International,Tinkune, Muni Bhairab Marg, Kathmandu 44600
             </p>
           </div>
           <div className="flex items-center gap-2 mb-2">
