@@ -23,6 +23,8 @@ export default function Navbar() {
     { label: "OUR SERVICES", dropdown: true },
     { label: "FAQ", href: "#faq" },
     { label: "CONTACT US", href: "#contact" },
+    { label: "PRICING", href: "pricing" },
+
     {
       label: "CAREER",
       href: "https://bayupayu.com/vacancy/NCG?page=1",
@@ -253,8 +255,7 @@ export default function Navbar() {
               "&:hover": { bgcolor: "#c60000" },
             }}
             onClick={() =>
-              (window.location.href =
-                "https://app.international.nepalcan.com/")
+              (window.location.href = "https://app.international.nepalcan.com/")
             }
           >
             Login

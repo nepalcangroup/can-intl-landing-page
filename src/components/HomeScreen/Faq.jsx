@@ -20,7 +20,7 @@ const faqs = [
     answer:
       "We provide logistics services nationwide and also offer international shipping solutions.",
   },
-  
+
   {
     question: "How do I get a price quote?",
     answer:
@@ -30,7 +30,7 @@ const faqs = [
 
 export default function FAQSection() {
   return (
-    <section id = "faq" className="py-0 md:py-10 bg-gray-50">
+    <section className="w-full py-4 md:py-20 bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.15),white)]">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-[var(--custom-red)] mb-4 md:mb-6">
@@ -48,7 +48,9 @@ export default function FAQSection() {
               }}
             >
               <AccordionSummary
-                expandIcon={<ExpandMoreIcon className="text-[var(--custom-red)]" />}
+                expandIcon={
+                  <ExpandMoreIcon className="text-[var(--custom-red)]" />
+                }
               >
                 <Typography variant="subtitle1" className="font-semibold">
                   {faq.question}
