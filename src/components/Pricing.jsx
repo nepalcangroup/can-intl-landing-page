@@ -10,7 +10,7 @@ export default function PricingPage() {
   const LIVE_URL = "https://app.international.nepalcan.com";
   const DEMO_URL = "https://can-intl.onrender.com";
 
-  const BASE_URL = DEMO_URL;
+  const BASE_URL = LIVE_URL;
 
   const [countryList, setCountryList] = useState([]);
   const [origin] = useState("Nepal");
