@@ -21,7 +21,7 @@
     "html-react-parser": "^5.2.2",
     "js-cookie": "^3.0.5",
     "lottie-web": "^5.12.2",
-    "next": "15.1.9",
+    "next": "15.1.11",
     "nprogress": "^0.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
