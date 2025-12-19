@@ -19,11 +19,18 @@ export default function p() {
   const destination = pricingData?.destination || null;
   console.log(destination, "country");
 
+  const LIVE_URL = "https://app.international.nepalcan.com";
   const DEMO_URL = "https://can-intl.onrender.com";
   const LOCAL_URL = "http://localhost:5002";
 
-  const BASE_URL =
-    process.env.NODE_ENV === "development" ? LOCAL_URL : DEMO_URL;
+  let BASE_URL;
+  if (process.env.NODE_ENV === "development") {
+    BASE_URL = LOCAL_URL;
+  } else if (process.env.NODE_ENV === "production") {
+    BASE_URL = LIVE_URL;
+  } else {
+    BASE_URL = DEMO_URL;
+  }
 
   const {
     control,
