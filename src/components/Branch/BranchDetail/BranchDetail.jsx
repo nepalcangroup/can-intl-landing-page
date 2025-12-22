@@ -22,19 +22,18 @@ import LocationMap from "./LocationMap";
 import LoadingSkeleton from "./LoadingSkeleton";
 import EmptyState from "./EmptyState";
 import BranchHero from "./BranchHero";
+import { FloatingOrderButton } from "./FloatingOrderButton";
 
 export default function BranchDetail({ params }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = params?.id;
- 
 
-  const page = searchParams.get('page') || '1';
-  const search = searchParams.get('search') || '';
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
 
   // Handle both formats: "123" and "123-branch-name"
   const id = slug ? (slug.includes("-") ? slug.split("-")[0] : slug) : null;
-
 
   const [branch, setBranch] = useState(null);
   const [services, setServices] = useState([]);
@@ -114,120 +113,134 @@ export default function BranchDetail({ params }) {
   }
   if (!branch) return <EmptyState type="not-found" />;
 
+  const handleOrderClick = () => {
+    router.push("/#contact");
+  };
   return (
-    <div className="branch-theme min-h-screen bg-background text-foreground mt-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* BACK BUTTON */}
-        <button
-          onClick={() => {
-            // Navigate back to branch list with the same page and search parameters
-            const queryParams = new URLSearchParams();
-            if (page !== '1') queryParams.set('page', page);
-            if (search) queryParams.set('search', search);
-            
-            const queryString = queryParams.toString();
-            const url = `/branch${queryString ? `?${queryString}` : ''}`;
-            router.push(url);
-          }}
-          className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-lg"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
+    <>
+      <FloatingOrderButton onClick={handleOrderClick}/>
+      <div className="branch-theme min-h-screen bg-background text-foreground mt-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {/* BACK BUTTON */}
+          <button
+            onClick={() => {
+              // Navigate back to branch list with the same page and search parameters
+              const queryParams = new URLSearchParams();
+              if (page !== "1") queryParams.set("page", page);
+              if (search) queryParams.set("search", search);
 
-        {/* HERO */}
-        <div className="bg-card rounded-2xl shadow-elevated mb-12">
-          <BranchHero
-            name={branch.name}
-            address={branch.address}
-            code={branch.code}
-            phone={branch.phone}
-          />
-        </div>
+              const queryString = queryParams.toString();
+              const url = `/branch${queryString ? `?${queryString}` : ""}`;
+              router.push(url);
+            }}
+            className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-lg"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
 
-        {/* INFO */}
-        <section className="mb-14 animate-fade-in">
-          <SectionHeader
-            title="Branch Information"
-            subtitle="Contact details and coverage area"
-          />
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <InfoCard icon={<Hash />} label="Branch Code" value={branch.code} />
-            <InfoCard icon={<Phone />} label="Phone" value={branch.phone} />
-            <InfoCard
-              icon={<PhoneCall />}
-              label="Additional Phone"
-              value={branch.additionalPhone}
-            />
-            <InfoCard
-              icon={<MapPinned />}
-              label="Areas Covered"
-              value={branch.areasCovered}
-            />
-            <InfoCard
-              icon={<Building />}
-              label="Province"
-              value={branch.province?.name}
-            />
-            <InfoCard
-              icon={<Map />}
-              label="District"
-              value={branch.district?.name}
-            />
-            <InfoCard
-              icon={<Landmark />}
-              label="Municipality"
-              value={branch.municipality?.name}
+          {/* HERO */}
+          <div className="bg-card rounded-2xl shadow-elevated mb-12">
+            <BranchHero
+              name={branch.name}
+              address={branch.address}
+              code={branch.code}
+              phone={branch.phone}
             />
           </div>
-        </section>
 
-        {/* WORKING HOURS */}
-        <section className="mb-14">
-          <SectionHeader title="Working Hours" subtitle="Our weekly schedule" />
-          <div className="grid sm:grid-cols-2 gap-4">
-            {branch.workingHours?.map((day, index) => (
-              <WorkingHoursCard key={day._id} day={day} index={index} />
-            ))}
-          </div>
-        </section>
+          {/* INFO */}
+          <section className="mb-14 animate-fade-in">
+            <SectionHeader
+              title="Branch Information"
+              subtitle="Contact details and coverage area"
+            />
 
-        {/* SERVICES */}
-        {services && services.length > 0 && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <InfoCard
+                icon={<Hash />}
+                label="Branch Code"
+                value={branch.code}
+              />
+              <InfoCard icon={<Phone />} label="Phone" value={branch.phone} />
+              <InfoCard
+                icon={<PhoneCall />}
+                label="Additional Phone"
+                value={branch.additionalPhone}
+              />
+              <InfoCard
+                icon={<MapPinned />}
+                label="Areas Covered"
+                value={branch.areasCovered}
+              />
+              <InfoCard
+                icon={<Building />}
+                label="Province"
+                value={branch.province?.name}
+              />
+              <InfoCard
+                icon={<Map />}
+                label="District"
+                value={branch.district?.name}
+              />
+              <InfoCard
+                icon={<Landmark />}
+                label="Municipality"
+                value={branch.municipality?.name}
+              />
+            </div>
+          </section>
+
+          {/* WORKING HOURS */}
           <section className="mb-14">
             <SectionHeader
-              title="Services Available"
-              subtitle="What we offer at this location"
+              title="Working Hours"
+              subtitle="Our weekly schedule"
             />
-            <div className="grid sm:grid-cols-2 gap-6">
-              {services.map((service, index) => (
-                <ServiceCard
-                  key={service._id}
-                  service={service}
-                  index={index}
-                />
+            <div className="grid sm:grid-cols-2 gap-4">
+              {branch.workingHours?.map((day, index) => (
+                <WorkingHoursCard key={day._id} day={day} index={index} />
               ))}
             </div>
           </section>
-        )}
 
-        {/* MAP */}
-        {(branch.coordinates || branch.canAddress?.coordinates) && (
-          <section className="mb-14">
-            <SectionHeader title="Location" subtitle="Find us here" />
-            <LocationMap
-              lat={
-                branch.coordinates?.lat || branch.canAddress?.coordinates?.lat
-              }
-              long={
-                branch.coordinates?.long || branch.canAddress?.coordinates?.lng
-              }
-              name={branch.name}
-            />
-          </section>
-        )}
+          {/* SERVICES */}
+          {services && services.length > 0 && (
+            <section className="mb-14">
+              <SectionHeader
+                title="Services Available"
+                subtitle="What we offer at this location"
+              />
+              <div className="grid sm:grid-cols-2 gap-6">
+                {services.map((service, index) => (
+                  <ServiceCard
+                    key={service._id}
+                    service={service}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* MAP */}
+          {(branch.coordinates || branch.canAddress?.coordinates) && (
+            <section className="mb-14">
+              <SectionHeader title="Location" subtitle="Find us here" />
+              <LocationMap
+                lat={
+                  branch.coordinates?.lat || branch.canAddress?.coordinates?.lat
+                }
+                long={
+                  branch.coordinates?.long ||
+                  branch.canAddress?.coordinates?.lng
+                }
+                name={branch.name}
+              />
+            </section>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
