@@ -20,9 +20,9 @@ export default function PricingPage() {
   const LOCAL_URL = "http://localhost:5002";
 
   let BASE_URL;
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NEXT_PUBLIC_ENV === "development") {
     BASE_URL = DEMO_URL;
-  } else if (process.env.NODE_ENV === "production") {
+  } else if (process.env.NEXT_PUBLIC_ENV === "production") {
     BASE_URL = LIVE_URL;
   } else {
     BASE_URL = LOCAL_URL;
