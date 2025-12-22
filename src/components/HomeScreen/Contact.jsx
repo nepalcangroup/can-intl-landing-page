@@ -1,19 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 import { Phone, Home, Email } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector, useDispatch } from "react-redux";
+import { clearPricingData } from "@/store/pricingSlice";
 
 export default function p() {
   const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const pricingData = useSelector((state) => state.pricing);
+
+  const pricingMessage = pricingData?.contactMessage || "";
+  const destination = pricingData?.destination || null;
+
+  const [formMessage, setFormMessage] = useState({ text: "", type: "" });
+
+  const LIVE_URL = "https://app.international.nepalcan.com";
+  const DEMO_URL = "https://can-intl.onrender.com";
+  const LOCAL_URL = "http://localhost:5002";
+
+  let BASE_URL;
+  if (process.env.NODE_ENV === "development") {
+    BASE_URL = LOCAL_URL;
+  } else if (process.env.NODE_ENV === "production") {
+    BASE_URL = LIVE_URL;
+  } else {
+    BASE_URL = DEMO_URL;
+  }
 
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -25,23 +49,49 @@ export default function p() {
     },
   });
 
+  useEffect(() => {
+    if (pricingMessage) {
+      setValue("message", pricingMessage);
+    }
+  }, [pricingMessage, setValue]);
+
   const onSubmit = async (data) => {
     try {
+      const payload = {
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone || "",
+        description: data.message,
+        inquiryOf: destination,
+      };
       setLoading(true);
-      const res = await fetch("https://postghost.onrender.com/webhook/OOVFOI", {
+      setFormMessage({ text: "", type: "" });
+
+      const res = await fetch(`${BASE_URL}/api/public/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
+      const result = await res.json();
       if (!res.ok) {
-        throw new Error("Failed to submit form");
+        setFormMessage({
+          text: result.message || "Something went wrong",
+          type: "error",
+        });
+        return;
       }
-      toast.success("Message sent successfully!");
+
+      setFormMessage({
+        text: "Thank you! We will contact you shortly.",
+        type: "success",
+      });
+
       reset();
-    } catch (err) {
-      console.error("Error:", err);
-      toast.error("Something went wrong!");
+      dispatch(clearPricingData());
+    } catch (error) {
+      console.error("Lead submit error:", error);
+      alert("Failed to submit. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +139,17 @@ export default function p() {
             className="flex flex-col gap-6 bg-white p-6 rounded-lg shadow-md"
             onSubmit={handleSubmit(onSubmit)}
           >
+            {formMessage.text && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: formMessage.type === "success" ? "green" : "red",
+                  fontWeight: 500,
+                }}
+              >
+                {formMessage.text}
+              </Typography>
+            )}
             <Controller
               name="fullName"
               control={control}
@@ -107,7 +168,6 @@ export default function p() {
             <Controller
               name="subject"
               control={control}
-              rules={{ required: "Subject is required" }}
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -144,7 +204,6 @@ export default function p() {
               name="email"
               control={control}
               rules={{
-                required: "Email is required",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: "Enter a valid email",

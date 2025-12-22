@@ -24,13 +24,13 @@ const faqs = [
   {
     question: "How do I get a price quote?",
     answer:
-      "You can request a free quote by filling out the contact form or reaching out to our support team.",
+      "To receive a price quote, please fill out the pricing form accessible via the “Pricing” button in the navigation bar.",
   },
 ];
 
 export default function FAQSection() {
   return (
-    <section className="w-full py-4 md:py-20 bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.15),white)]">
+    <section id="faq" className="w-full py-4 md:py-20 bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.15),white)]">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-[var(--custom-red)] mb-4 md:mb-6">

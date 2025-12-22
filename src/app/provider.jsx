@@ -12,6 +12,9 @@ import { AppProvider } from "@/context/AppProvider";
 
 import { ToastContainer } from "react-toastify";
 
+import { Provider as ReduxProvider } from "react-redux";
+import { store } from "@/store";
+
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -48,16 +51,18 @@ export default function Providers({ children }) {
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        {children}
+    <ReduxProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <AppProvider>
+          {children}
 
-        <ToastContainer
-          hideProgressBar
-          position="top-center"
-          autoClose={2000}
-        />
-      </AppProvider>
-    </QueryClientProvider>
+          <ToastContainer
+            hideProgressBar
+            position="top-center"
+            autoClose={2000}
+          />
+        </AppProvider>
+      </QueryClientProvider>
+    </ReduxProvider>
   );
 }
