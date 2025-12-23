@@ -20,12 +20,12 @@ export default function PricingPage() {
   const LOCAL_URL = "http://localhost:5002";
 
   let BASE_URL;
-  if (process.env.NEXT_PUBLIC_ENV === "development") {
-    BASE_URL = DEMO_URL;
-  } else if (process.env.NEXT_PUBLIC_ENV === "production") {
-    BASE_URL = LIVE_URL;
-  } else {
+  if (process.env.NEXT_PUBLIC_ENV === "local") {
     BASE_URL = LOCAL_URL;
+  } else if (process.env.NEXT_PUBLIC_ENV === "development") {
+    BASE_URL = DEMO_URL;
+  } else {
+    BASE_URL = LIVE_URL;
   }
 
   const [countryList, setCountryList] = useState([]);
