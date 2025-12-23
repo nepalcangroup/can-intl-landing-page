@@ -66,7 +66,7 @@ export default function BranchDetail({ params }) {
 
       try {
         const res = await fetch(
-          `http://localhost:5002/api/public/branch/${id}`
+          `https://app.international.nepalcan.com/api/public/branch/${id}`
         );
 
         if (!res.ok) {
@@ -116,8 +116,6 @@ export default function BranchDetail({ params }) {
 
   const handleOrderClick = () => {
     const message = `I want to inquire about sending parcel abroad from ${branch.name}`;
-
-    // Navigate to home page with message parameter and scroll to contact
     router.push(`/?message=${encodeURIComponent(message)}#contact`);
   };
   return (
@@ -128,11 +126,8 @@ export default function BranchDetail({ params }) {
           {/* BACK BUTTON */}
           <button
             onClick={() => {
-              // Navigate back to branch list with the same page and search parameters
               const queryParams = new URLSearchParams();
               if (page !== "1") queryParams.set("page", page);
-              if (search) queryParams.set("search", search);
-
               const queryString = queryParams.toString();
               const url = `/branch${queryString ? `?${queryString}` : ""}`;
               router.push(url);
@@ -196,18 +191,20 @@ export default function BranchDetail({ params }) {
           </section>
 
           {/* WORKING HOURS */}
-          <section className="mb-14">
-            <SectionHeader
-              title="Working Hours"
-              subtitle="Our weekly schedule"
-            />
-            <div className="grid sm:grid-cols-2 gap-4">
-              {branch.workingHours?.map((day, index) => (
-                <WorkingHoursCard key={day._id} day={day} index={index} />
-              ))}
-            </div>
-          </section>
-
+          {Array.isArray(branch.workingHours) &&
+            branch.workingHours.length > 0 && (
+              <section className="mb-14">
+                <SectionHeader
+                  title="Working Hours"
+                  subtitle="Our weekly schedule"
+                />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {branch.workingHours?.map((day, index) => (
+                    <WorkingHoursCard key={day._id} day={day} index={index} />
+                  ))}
+                </div>
+              </section>
+            )}
           {/* SERVICES */}
           {services && services.length > 0 && (
             <section className="mb-14">

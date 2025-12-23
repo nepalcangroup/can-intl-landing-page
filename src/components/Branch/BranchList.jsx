@@ -14,8 +14,7 @@ export default function BranchPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Initialize state from URL parameters on component mount
+  const isSearching = search.trim().length > 0;
   useEffect(() => {
     const urlPage = searchParams.get("page");
     const urlSearch = searchParams.get("search");
@@ -33,7 +32,9 @@ export default function BranchPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      if (search.trim() !== debouncedSearch) {
+        setPage(1);
+      }
     }, 400);
 
     return () => clearTimeout(timer);
@@ -44,7 +45,7 @@ export default function BranchPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5002/api/public/branch-list?page=${page}&search=${debouncedSearch}`
+          `https://app.international.nepalcan.com/api/public/branch-list?page=${page}&search=${debouncedSearch}`
         );
         const data = await res.json();
 
@@ -63,11 +64,9 @@ export default function BranchPage() {
   // Update URL when page or search changes
   useEffect(() => {
     const params = new URLSearchParams();
-    // Only add page parameter if it's not the first page
     if (page > 1) {
       params.set("page", page.toString());
     }
-    // Only add search parameter if there's actual search text
     if (debouncedSearch && debouncedSearch.trim()) {
       params.set("search", debouncedSearch);
     }
@@ -75,7 +74,6 @@ export default function BranchPage() {
     const queryString = params.toString();
     const newUrl = queryString ? `/branch?${queryString}` : "/branch";
 
-    // Update URL without triggering a navigation
     window.history.replaceState({}, "", newUrl);
   }, [page, debouncedSearch]);
 
@@ -93,21 +91,42 @@ export default function BranchPage() {
         Our Branches
       </h1>
 
-      <div className="mb-6 relative">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search branch by name, code, address..."
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full px-5 py-3 pr-14 border rounded-lg outline-none text-sm"
-          style={{ borderColor: BRAND }}
-        />
+      <div className="mb-6 flex items-center gap-2">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search branch by name, code, address..."
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="   w-full h-11 px-5 pr-10 text-sm border rounded-lg outline-none transition-all
+                          focus:ring-1 focus:ring-red-500 focus:border-red-500"
+            style={{
+              borderColor: isSearching ? BRAND : "#e5e7eb",
+            }}
+          />
 
+          {isSearching && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setDebouncedSearch("");
+                setPage(1);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* SEARCH BUTTON */}
         <button
           type="button"
           onClick={handleSearch}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md"
+          className="h-11 px-4 rounded-lg flex items-center justify-center text-white
+               transition hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: BRAND }}
         >
           <SearchIcon />
@@ -119,7 +138,6 @@ export default function BranchPage() {
         className="relative overflow-x-auto rounded-xl border"
         style={{ borderColor: BRAND }}
       >
-        {/* 🔹 Loading overlay (no blink) */}
         {loading && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
             <div className="h-6 w-6 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
@@ -149,11 +167,9 @@ export default function BranchPage() {
                   key={branch._id}
                   onClick={() => {
                     const params = new URLSearchParams();
-                    // Only add page parameter if it's not the first page
                     if (page > 1) {
                       params.set("page", page.toString());
                     }
-                    // Only add search parameter if there's actual search text
                     if (debouncedSearch && debouncedSearch.trim()) {
                       params.set("search", debouncedSearch);
                     }

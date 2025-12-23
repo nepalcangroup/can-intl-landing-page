@@ -12,7 +12,7 @@ export function FloatingOrderButton({ onClick }) {
           className="relative transition-transform duration-500 ease-in-out group-hover:[transform:rotateY(180deg)]"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {/* Front side - "Want to place your order?" */}
+          {/* Front side */}
           <div
             className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-lg text-white"
             style={{
@@ -26,7 +26,7 @@ export function FloatingOrderButton({ onClick }) {
             </span>
           </div>
 
-          {/* Back side - "Click here!" */}
+          {/* Back side */}
           <div
             className="absolute inset-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full shadow-lg [transform:rotateY(180deg)] text-white"
             style={{

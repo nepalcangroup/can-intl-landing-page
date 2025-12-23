@@ -1,7 +1,7 @@
 import { Navigation } from "lucide-react";
 
 export default function LocationMap({ lat, long, name }) {
-  // Check if lat and long are valid numbers
+
   if (!lat || !long || isNaN(lat) || isNaN(long)) {
     return (
       <div className="rounded-2xl overflow-hidden border border-border shadow-medium animate-fade-in">
