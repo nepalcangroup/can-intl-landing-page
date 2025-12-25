@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useDispatch } from "react-redux";
 import { clearPricingData, setPricingData } from "@/store/pricingSlice";
+import { toast } from "react-toastify";
 
 // Dynamically import react-select to avoid SSR hydration issues
 const Select = dynamic(() => import("react-select"), {
@@ -28,6 +29,8 @@ export default function PricingPage() {
     BASE_URL = LOCAL_URL;
   }
 
+  const BRAND_COLOR = "#dc1e3e";
+
   const [countryList, setCountryList] = useState([]);
   const [origin] = useState("Nepal");
   const [destination, setDestination] = useState("");
@@ -36,6 +39,7 @@ export default function PricingPage() {
   const [service, setService] = useState("");
   const [price, setPrice] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Contact form state
   const [contactName, setContactName] = useState("");
@@ -83,6 +87,7 @@ export default function PricingPage() {
       }
     } catch (err) {
       console.error("Country fetch error:", err);
+      toast.error("Failed to load countries. Please refresh the page.");
     }
   };
 
@@ -91,12 +96,35 @@ export default function PricingPage() {
   }, []);
 
   const calculateRate = async () => {
-    if (!weight || weight <= 0) {
-      alert("Please enter a valid weight.");
+    if(!type && !service && !weight){
+      toast.error("Please enter all the fields");
+      return;
+    }
+    
+ 
+      if (!destination) {
+      toast.error("Please select a destination country.");
       return;
     }
 
+    if (!type) {
+      toast.error("Please select a shipment type.");
+      return;
+    }
+
+    if (!service) {
+      toast.error("Please select a service type.");
+      return;
+    }
+
+    if (!weight || weight <= 0) {
+      toast.error("Please enter a valid weight.");
+      return;
+    }
+  
+
     try {
+      setIsLoading(true);
       const payload = {
         destination,
         type,
@@ -115,13 +143,15 @@ export default function PricingPage() {
       if (!data.success) {
         // Handle specific zone data error with more user-friendly message
         if (data.message && data.message.includes("No zone data found")) {
-          alert(
-            `We're sorry, but we currently don't offer shipping services to ${destination}. Please contact our support team for alternative shipping options or choose a different destination country.`
+          toast.error(
+            `We're sorry, but we currently don't offer shipping services to ${destination}. Please contact our support team for alternative shipping options or choose a different destination country.`,
+            toastConfig.error
           );
         } else {
-          alert(
+          toast.error(
             data.message ||
-              "Unable to calculate shipping rate. Please try again."
+              "Unable to calculate shipping rate. Please try again.",
+            toastConfig.error
           );
         }
         setPrice(null);
@@ -129,25 +159,33 @@ export default function PricingPage() {
       }
 
       setPrice(data?.data?.finalRate ?? 0);
+      toast.success("Price calculated successfully!");
     } catch (err) {
-      console.error("Rate fetch error:", err);
       if (err.message === "Failed to fetch") {
-        alert(
-          "Unable to connect to pricing service. Please check your internet connection and try again."
+        toast.error(
+          "Unable to connect to pricing service. Please check your internet connection and try again.",
+          toastConfig.error
         );
       } else {
-        alert("An error occurred while calculating rate. Please try again.");
+        toast.error(
+          "An error occurred while calculating rate. Please try again."
+        );
       }
       setPrice(null);
+    }
+    finally{
+      setIsLoading(false);
     }
   };
 
   const sendContact = () => {
     if (!contactName || !contactEmail) {
-      alert("Please fill in your name and email.");
+      toast.error("Please fill in your name and email.");
       return;
     }
-    alert(`Thank you ${contactName}! We will contact you to send your order.`);
+    toast.success(
+      `Thank you ${contactName}! We will contact you to send your order.`
+    );
     setContactName("");
     setContactEmail("");
   };
@@ -163,9 +201,47 @@ export default function PricingPage() {
     ],
   };
 
+  const customSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "48px",
+      height: "48px",
+      borderRadius: "0.5rem",
+      borderColor: state.isFocused ? BRAND_COLOR : "#d1d5db",
+      boxShadow: state.isFocused ? `0 0 0 1px ${BRAND_COLOR}` : "none",
+      "&:hover": {
+        borderColor: BRAND_COLOR,
+      },
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0 12px",
+    }),
+    indicatorsContainer: (base) => ({
+      ...base,
+      height: "48px",
+    }),
+
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? BRAND_COLOR
+        : state.isFocused
+        ? "#fee2e2"
+        : "white",
+      color: state.isSelected ? "white" : "#374151",
+      "&:active": {
+        backgroundColor: BRAND_COLOR,
+      },
+    }),
+  };
+
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-32 py-10 bg-gray-50 min-h-screen">
-      <h2 className="pt-10 text-2xl sm:text-3xl font-extrabold text-center text-red-600 mb-8">
+      <h2
+        className="pt-10 text-2xl sm:text-3xl font-extrabold text-center mb-8"
+        style={{ color: BRAND_COLOR }}
+      >
         International Courier Pricing
       </h2>
 
@@ -175,7 +251,7 @@ export default function PricingPage() {
         <input
           value={origin}
           disabled
-          className="w-full  h-12 px-3 Top-3 rounded-lg border mb-4 bg-gray-100 text-sm sm:text-base"
+          className="w-full h-12 px-3 rounded-lg border mb-4 bg-gray-100 text-sm sm:text-base"
         />
 
         {/* Destination */}
@@ -211,22 +287,7 @@ export default function PricingPage() {
               </div>
             )}
             className="mb-4"
-            styles={{
-              control: (base) => ({
-                ...base,
-                minHeight: "48px",
-                height: "48px",
-                borderRadius: "0.5rem",
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                padding: "0 12px",
-              }),
-              indicatorsContainer: (base) => ({
-                ...base,
-                height: "48px",
-              }),
-            }}
+            styles={customSelectStyles}
           />
         )}
 
@@ -234,23 +295,30 @@ export default function PricingPage() {
         <label className="block font-semibold text-gray-700 mb-1">
           Shipment Type
         </label>
-        <select
-          value={type}
-          onChange={(e) => {
-            setType(e.target.value);
-            setService("");
-          }}
-          className="w-full h-12 px-3 rounded-lg border border-gray-300 
-             text-sm sm:text-base bg-white
-             focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500
-             transition mb-1"
-        >
-          <option value="" disabled>
-            Select Shipment Type
-          </option>
-          <option value="document">Document</option>
-          <option value="parcel">Parcel</option>
-        </select>
+        {isMounted && (
+          <Select
+            instanceId="shipment-type-select"
+            options={[
+              { value: "document", label: "Document" },
+              { value: "parcel", label: "Parcel" },
+            ]}
+            value={
+              type
+                ? {
+                    value: type,
+                    label: type.charAt(0).toUpperCase() + type.slice(1),
+                  }
+                : null
+            }
+            onChange={(item) => {
+              setType(item.value);
+              setService("");
+            }}
+            placeholder="Select Shipment Type"
+            className="mb-1"
+            styles={customSelectStyles}
+          />
+        )}
 
         <p className="text-xs text-gray-500 mb-4 px-1">
           Choose what you are sending
@@ -260,24 +328,22 @@ export default function PricingPage() {
         <label className="block font-semibold text-gray-700 mb-1">
           Service Type
         </label>
-        <select
-          value={service}
-          onChange={(e) => setService(e.target.value)}
-          disabled={!type}
-          className={`w-full h-12 px-3 rounded-lg border mb-2 text-sm sm:text-base
-    ${!type ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
-        >
-          <option value="" disabled>
-            Select Service Type
-          </option>
-
-          {type &&
-            serviceOptionsByType[type].map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-        </select>
+        {isMounted && (
+          <Select
+            instanceId="service-type-select"
+            options={type ? serviceOptionsByType[type] : []}
+            value={
+              service
+                ? serviceOptionsByType[type]?.find((s) => s.value === service)
+                : null
+            }
+            onChange={(item) => setService(item.value)}
+            placeholder="Select Service Type"
+            isDisabled={!type}
+            className="mb-2"
+            styles={customSelectStyles}
+          />
+        )}
 
         <p className="text-xs text-gray-500 mb-4 px-1">
           {!type ? "Select shipment type first" : "Choose delivery speed"}
@@ -290,15 +356,45 @@ export default function PricingPage() {
         <input
           type="number"
           value={weight}
-          onChange={(e) => setWeight(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Only allow positive numbers
+            if (value === "" || parseFloat(value) >= 0) {
+              setWeight(value);
+            }
+          }}
+          onKeyDown={(e) => {
+            // Prevent minus sign and 'e' (scientific notation)
+            if (e.key === "-" || e.key === "e" || e.key === "E") {
+              e.preventDefault();
+            }
+          }}
+          min="0"
+          step="1"
           placeholder="Enter weight in KG"
-          className="w-full p-3 rounded-lg border mb-4 text-sm sm:text-base"
+          className="w-full h-12 px-3 rounded-lg border border-gray-300 
+             text-sm sm:text-base bg-white
+             focus:outline-none focus:ring-2 focus:border-transparent
+             transition mb-1"
+          style={{
+            "--tw-ring-color": BRAND_COLOR,
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = BRAND_COLOR;
+            e.target.style.boxShadow = `0 0 0 1px ${BRAND_COLOR}`;
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = "#d1d5db";
+            e.target.style.boxShadow = "none";
+          }}
         />
 
         {/* Button */}
         <button
           onClick={calculateRate}
-          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold text-base sm:text-lg transition mt-2"
+          className="w-full text-white py-3 rounded-lg font-semibold text-base sm:text-lg transition mt-2 hover:opacity-90"
+          style={{ backgroundColor: BRAND_COLOR }}
+          disabled={isLoading}
         >
           Calculate Price
         </button>
@@ -319,6 +415,7 @@ export default function PricingPage() {
             <span
               onClick={handleClick}
               className="ml-0 text-sm cursor-pointer hover:underline transition"
+              style={{ color: BRAND_COLOR }}
             >
               Send Your Order
             </span>
