@@ -13,19 +13,22 @@ export default function Navbar() {
   const [isTop, setIsTop] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
 
-  const navItems = [
+  const primaryItems = [
     { label: "DISCOVER US", href: "#discover" },
-    { label: "ABOUT US", href: "#about" },
-    { label: "OUR SERVICES", dropdown: true },
+    { label: "ABOUT", href: "#about" },
     { label: "FAQ", href: "#faq" },
-    { label: "CONTACT US", href: "#contact" },
-    { label: "PRICING", href: "/pricing" },
-    {label: "OUR BRANCHES", href: "/branch"},
+    { label: "CONTACT", href: "#contact" },
+  ];
 
+  const secondaryItems = [
+    { label: "OUR SERVICES", dropdown: true },
+    { label: "PRICING", href: "/pricing" },
+    { label: "OUR BRANCHES", href: "/branch" },
     {
       label: "CAREER",
       href: "https://bayupayu.com/vacancy/NCG?page=1",
@@ -58,9 +61,11 @@ export default function Navbar() {
   const updateActiveNavItem = () => {
     if (pathname !== "/") return;
 
-    for (let i = navItems.length - 1; i >= 0; i--) {
-      const href = navItems[i].href;
-         if (!href || navItems[i].external || !href.startsWith("#")) continue;
+    for (let i = primaryItems.length - 1; i >= 0; i--) {
+      const item = primaryItems[i];
+      const href = item.href;
+      if (!href || item.dropdown || item.external || !href.startsWith("#"))
+        continue;
       const element = document.querySelector(href);
       if (element) {
         const rect = element.getBoundingClientRect();
@@ -68,7 +73,7 @@ export default function Navbar() {
           rect.top <= window.innerHeight / 2 &&
           rect.bottom >= window.innerHeight / 2
         ) {
-          setActive(navItems[i].label);
+          setActive(item.label);
           return;
         }
       }
@@ -102,7 +107,7 @@ export default function Navbar() {
       if (hash) {
         setTimeout(() => {
           scrollToSection(hash);
-          const matched = navItems.find((item) => item.href === hash);
+          const matched = primaryItems.find((item) => item.href === hash);
           if (matched) setActive(matched.label);
         }, 120);
       } else {
@@ -118,6 +123,7 @@ export default function Navbar() {
 
     setMenuOpen(false);
     setServicesOpen(false);
+    setMoreOpen(false);
 
     if (item.external) {
       window.open(item.href, "_blank", "noopener,noreferrer");
@@ -126,17 +132,176 @@ export default function Navbar() {
 
     if (item.href?.startsWith("#")) {
       const targetUrl = `/${item.href}`;
-
       router.push(targetUrl);
       setActive(item.label);
-
       return;
     }
 
-    // Real pages in the future
     if (item.href) {
       router.push(item.href);
     }
+  };
+
+  const renderNavLink = (item) => (
+    <a
+      onClick={(e) => handleNavClick(e, item)}
+      className={`relative font-medium cursor-pointer pb-1 select-none
+        ${isTop && pathname === "/" ? "text-white" : "text-black"}
+        after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full
+        after:bg-[var(--custom-red)] after:origin-left after:transition-transform after:duration-300
+        ${pathname === "/" ? "hover:after:scale-x-100" : ""} 
+        ${active === item.label ? "after:scale-x-100" : "after:scale-x-0"}
+      `}
+    >
+      {item.label}
+    </a>
+  );
+
+  const renderServicesInMoreDropdown = () => {
+    return (
+    <>
+      <div
+        className="flex items-center gap-1 font-medium cursor-pointer select-none pb-1 text-black"
+        onClick={() => {
+          setServicesOpen((prev) => !prev);
+        }}
+      >
+        <span>OUR SERVICES</span>
+        <span
+          className={`transform transition-transform ${
+            servicesOpen ? "rotate-180" : "rotate-0"
+          } text-black`}
+        >
+          ▼
+        </span>
+      </div>
+
+      {servicesOpen && (
+        <div
+          className="absolute left-0 mt-2 bg-white shadow-lg rounded-md p-4 w-56 z-50 text-black"
+          onMouseLeave={() => setServicesOpen(false)}
+        >
+          {servicesNav.map((s) => (
+            <Link
+              key={s.slug}
+              href={`/services/${s.slug}`}
+              className="block px-2 py-2 hover:text-[var(--custom-red)]"
+              onClick={() => {
+                setServicesOpen(false);
+                setMenuOpen(false);
+                setMoreOpen(false);
+              }}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
+  );
+  };
+
+  const renderMoreDropdown = () => (
+    <div className="relative">
+      <div
+        className={`flex items-center gap-1 font-medium cursor-pointer select-none pb-1
+          ${isTop && pathname === "/" ? "text-white" : "text-black"}
+        `}
+        onClick={() => {
+          setMoreOpen((prev) => !prev);
+          setServicesOpen(false);
+        }}
+      >
+        <span>MORE</span>
+        <span
+          className={`transform transition-transform ${
+            moreOpen ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          ▼
+        </span>
+      </div>
+
+      {moreOpen && (
+        <div
+          className="absolute right-0 mt-2 bg-white shadow-lg rounded-md p-4 w-56 z-50 text-black"
+          onMouseLeave={() => setMoreOpen(false)}
+        >
+          <div className="mb-4">
+            {renderServicesInMoreDropdown()}
+          </div>
+
+          {/* Other secondary items */}
+          {secondaryItems
+            .filter((item) => !item.dropdown)
+            .map((item) => (
+              <a
+                key={item.label}
+                onClick={(e) => {
+                  handleNavClick(e, item);
+                  setMoreOpen(false);
+                }}
+                className="block px-2 py-2 hover:text-[var(--custom-red)] cursor-pointer"
+              >
+                {item.label}
+              </a>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+
+  // For xl+ screens: normal dropdown 
+  const renderServicesDropdown = () => (
+    <>
+      <div
+        className={`flex items-center gap-1 font-medium cursor-pointer select-none pb-1
+          ${isTop && pathname === "/" ? "text-white" : "text-black"}
+        `}
+        onClick={() => {
+          setServicesOpen((prev) => !prev);
+          setMoreOpen(false);
+        }}
+      >
+        <span>OUR SERVICES</span>
+        <span
+          className={`transform transition-transform ${
+            servicesOpen ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          ▼
+        </span>
+      </div>
+
+      {servicesOpen && (
+        <div
+          className="absolute left-0 mt-2 bg-white shadow-lg rounded-md p-4 w-56 z-50 text-black"
+          onMouseLeave={() => setServicesOpen(false)}
+        >
+          {servicesNav.map((s) => (
+            <Link
+              key={s.slug}
+              href={`/services/${s.slug}`}
+              className="block px-2 py-2 hover:text-[var(--custom-red)]"
+              onClick={() => {
+                setServicesOpen(false);
+                setMenuOpen(false);
+                setMoreOpen(false);
+              }}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  const renderSecondaryItem = (item) => {
+    if (item.dropdown) {
+      return renderServicesDropdown(); 
+    }
+    return renderNavLink(item);
   };
 
   return (
@@ -147,9 +312,9 @@ export default function Navbar() {
           : "text-black bg-white shadow-md"
       }`}
     >
-      <div className="mx-6 flex items-center justify-between py-0">
+      <div className="mx-6 flex items-center justify-between py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+        <Link href="/" className="flex items-center">
           <Image
             src={
               isTop && pathname === "/"
@@ -157,219 +322,169 @@ export default function Navbar() {
                 : "/logo/can_international_logo.png"
             }
             alt="Can International"
-            width={333}
-            height={100}
-            className="rounded transition-all duration-300"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="w-[250px] lg:w-[300px] xl:w-[350px] h-auto"
           />
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
-          <nav className="flex gap-8 relative items-center">
-            {navItems.map((item) => (
+        <div className="hidden md:flex items-center gap-8">
+          <nav className="flex gap-8 items-center">
+            {/* Primary Items */}
+            {primaryItems.map((item) => (
               <div key={item.label} className="relative">
-                {!item.dropdown ? (
-                  <a
-                    onClick={(e) => handleNavClick(e, item)}
-                    className={`relative font-medium cursor-pointer pb-1 select-none
-                      ${isTop && pathname === "/" ? "text-white" : "text-black"}
-                      after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full
-                      after:bg-[var(--custom-red)] after:origin-left after:transition-transform after:duration-300
-                      ${pathname === "/" ? "hover:after:scale-x-100" : ""} 
-                      ${
-                        active === item.label
-                          ? "after:scale-x-100"
-                          : "after:scale-x-0"
-                      }
-                    `}
-                  >
-                    {item.label}
-                  </a>
-                ) : (
-                  <>
-                    <div
-                      className={`flex items-center gap-1 font-medium cursor-pointer select-none pb-1
-                        ${
-                          isTop && pathname === "/"
-                            ? "text-white"
-                            : "text-black"
-                        }
-                      `}
-                      onClick={() => setServicesOpen((prev) => !prev)}
-                    >
-                      <span>OUR SERVICES</span>
-                      <span
-                        className={`transform transition-transform ${
-                          servicesOpen ? "rotate-180" : "rotate-0"
-                        }`}
-                      >
-                        ▼
-                      </span>
-                    </div>
-
-                    {servicesOpen && (
-                      <div
-                        className="absolute left-0 mt-2 bg-white shadow-lg rounded-md p-4 w-56 z-50"
-                        onMouseLeave={() => setServicesOpen(false)}
-                      >
-                        {servicesNav.map((s) => (
-                          <Link
-                            key={s.slug}
-                            href={`/services/${s.slug}`}
-                            className="block px-2 py-2 text-black hover:text-[var(--custom-red)]"
-                            onClick={() => {
-                              setServicesOpen(false);
-                              setMenuOpen(false);
-                            }}
-                          >
-                            {s.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
+                {renderNavLink(item)}
               </div>
             ))}
+
+            {/* Secondary Items: Full on xl+, More dropdown on lg */}
+            <div className="hidden xl:flex gap-8 items-center">
+              {secondaryItems.map((item) => (
+                <div key={item.label} className="relative">
+                  {renderSecondaryItem(item)}
+                </div>
+              ))}
+            </div>
+
+            <div className="xl:hidden">
+              {renderMoreDropdown()}
+            </div>
           </nav>
 
           {/* Buttons */}
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "var(--custom-red)",
-              textTransform: "none",
-              "&:hover": { bgcolor: "#c60000" },
-            }}
-            onClick={() =>
-              window.open("https://app.international.nepalcan.com/public", "_blank")
-            }
-          >
-            Track My Order
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "var(--custom-red)",
+                textTransform: "none",
+                "&:hover": { bgcolor: "#c60000" },
+              }}
+              onClick={() =>
+                window.open(
+                  "https://app.international.nepalcan.com/public",
+                  "_blank"
+                )
+              }
+            >
+              Track My Order
+            </Button>
 
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "var(--custom-red)",
-              textTransform: "none",
-              "&:hover": { bgcolor: "#c60000" },
-            }}
-            onClick={() =>
-              (window.location.href = "https://app.international.nepalcan.com/")
-            }
-          >
-            Login
-          </Button>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "var(--custom-red)",
+                textTransform: "none",
+                "&:hover": { bgcolor: "#c60000" },
+              }}
+              onClick={() =>
+                (window.location.href = "https://app.international.nepalcan.com/")
+              }
+            >
+              Login
+            </Button>
+          </div>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu */}
         <div className="md:hidden">
           <IconButton
             onClick={() => {
               setMenuOpen((s) => !s);
               setServicesOpen(false);
+              setMoreOpen(false);
             }}
           >
             {menuOpen ? (
               <CloseIcon
-                className={`${
-                  isTop && pathname === "/" ? "text-white" : "text-black"
-                }`}
+                className={`${isTop && pathname === "/" ? "text-white" : "text-black"}`}
               />
             ) : (
               <MenuIcon
-                className={`${
-                  isTop && pathname === "/" ? "text-white" : "text-black"
-                }`}
+                className={`${isTop && pathname === "/" ? "text-white" : "text-black"}`}
               />
             )}
           </IconButton>
         </div>
       </div>
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-40"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Menu Dropdown */}
       {menuOpen && (
-        <div className="md:hidden absolute top-16 right-4 z-50 flex flex-col gap-4 px-4 py-4 bg-white text-black shadow-lg rounded-lg w-56">
-          {navItems.map((item) => (
-            <div key={item.label}>
-              {!item.dropdown ? (
-                <a
-                  className={`cursor-pointer font-medium ${
-                    active === item.label && pathname === "/"
-                      ? "text-[var(--custom-red)]"
-                      : "text-black"
-                  }`}
-                  onClick={(e) => handleNavClick(e, item)}
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <div>
-                  <p
-                    className="cursor-pointer font-medium flex justify-between items-center"
-                    onClick={() => setServicesOpen((prev) => !prev)}
-                  >
-                    OUR SERVICES
-                    <span>{servicesOpen ? "▲" : "▼"}</span>
-                  </p>
+        <>
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className="md:hidden absolute top-16 right-4 z-50 bg-white shadow-lg rounded-lg w-64 px-6 py-5 flex flex-col gap-5 text-black">
+            {primaryItems.map((item) => (
+              <a
+                key={item.label}
+                onClick={(e) => handleNavClick(e, item)}
+                className={`font-medium cursor-pointer ${
+                  active === item.label && pathname === "/" ? "text-[var(--custom-red)]" : ""
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
 
-                  {servicesOpen && (
-                    <div className="pl-4 mt-2 flex flex-col gap-2">
-                      {servicesNav.map((s) => (
-                        <Link
-                          key={s.slug}
-                          href={`/services/${s.slug}`}
-                          onClick={() => setMenuOpen(false)}
-                          className="text-black hover:text-[var(--custom-red)]"
-                        >
-                          {s.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+            {/* Services in Mobile */}
+            <div>
+              <p
+                className="font-medium flex justify-between items-center cursor-pointer"
+                onClick={() => setServicesOpen((prev) => !prev)}
+              >
+                OUR SERVICES
+                <span>{servicesOpen ? "▲" : "▼"}</span>
+              </p>
+              {servicesOpen && (
+                <div className="pl-4 mt-3 flex flex-col gap-3">
+                  {servicesNav.map((s) => (
+                    <Link
+                      key={s.slug}
+                      href={`/services/${s.slug}`}
+                      onClick={() => setMenuOpen(false)}
+                      className="hover:text-[var(--custom-red)]"
+                    >
+                      {s.label}
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
-          ))}
 
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "var(--custom-red)",
-              textTransform: "none",
-              "&:hover": { bgcolor: "#c60000" },
-            }}
-            onClick={() =>
-              window.open("https://can-intl.onrender.com/public", "_blank")
-            }
-          >
-            Track My Order
-          </Button>
+            {/* Other secondary items */}
+            {secondaryItems
+              .filter((item) => !item.dropdown)
+              .map((item) => (
+                <a
+                  key={item.label}
+                  onClick={(e) => {
+                    handleNavClick(e, item);
+                    setMenuOpen(false);
+                  }}
+                  className="font-medium cursor-pointer hover:text-[var(--custom-red)]"
+                >
+                  {item.label}
+                </a>
+              ))}
 
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "var(--custom-red)",
-              textTransform: "none",
-              px: 3,
-              py: 1,
-              "&:hover": { bgcolor: "#c60000" },
-            }}
-            onClick={() =>
-              (window.location.href =
-                "https://app.transport.thecanbrand.com/sign-in")
-            }
-          >
-            Login
-          </Button>
-        </div>
+            <div className="flex flex-col gap-3 pt-3">
+              <Button fullWidth variant="contained" sx={{ bgcolor: "var(--custom-red)", textTransform: "none", "&:hover": { bgcolor: "#c60000" } }}
+                onClick={() => window.open("https://app.international.nepalcan.com/public", "_blank")}
+              >
+                Track My Order
+              </Button>
+              <Button fullWidth variant="contained" sx={{ bgcolor: "var(--custom-red)", textTransform: "none", "&:hover": { bgcolor: "#c60000" } }}
+                onClick={() => (window.location.href = "https://app.international.nepalcan.com/")}
+              >
+                Login
+              </Button>
+            </div>
+          </div>
+        </>
       )}
     </header>
   );

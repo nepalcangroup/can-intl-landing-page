@@ -70,7 +70,7 @@ export default function BranchPage() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-14">
       <h1
-        className="text-3xl font-bold text-center mt-4 mb-8"
+        className="text-3xl font-bold text-center mt-14 mb-8"
         style={{ color: BRAND }}
       >
         Our Branches

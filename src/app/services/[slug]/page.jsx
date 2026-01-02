@@ -19,7 +19,7 @@ export default async function ServiceDetailPage({ params }) {
 
   return (
     <Layout>
-      <div className="bg-gray-200 pt-[65px] pb-[15px]">
+      <div className="bg-gray-200 pt-[100px] pb-[15px]">
         <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg px-8 pb-12 pt-[100px] text-gray-800 leading-relaxed">
 
           {/* HERO IMAGE */}

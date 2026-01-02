@@ -239,7 +239,7 @@ export default function PricingPage() {
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-32 py-10 bg-gray-50 min-h-screen">
       <h2
-        className="pt-10 text-2xl sm:text-3xl font-extrabold text-center mb-8"
+        className="pt-20 text-2xl sm:text-3xl font-extrabold text-center mb-8"
         style={{ color: BRAND_COLOR }}
       >
         International Courier Pricing

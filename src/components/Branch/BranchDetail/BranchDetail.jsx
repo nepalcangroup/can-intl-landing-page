@@ -128,7 +128,7 @@ export default function BranchDetail({ params }) {
             onClick={() => {
               const queryParams = new URLSearchParams();
               if (page !== "1") queryParams.set("page", page);
-              if (search) queryParams.set("search", search); 
+              if (search) queryParams.set("search", search);
               const queryString = queryParams.toString();
               const url = `/branch${queryString ? `?${queryString}` : ""}`;
               router.push(url);
@@ -236,24 +236,23 @@ export default function BranchDetail({ params }) {
           </section>
 
           {/* MAP */}
-          {(branch.coordinates || branch.canAddress?.coordinates) &&
-            (branch.canAddress?.coordinates?.lat &&
-              branch.canAddress?.coordinates?.long) > 0 && (
-              <section className="mb-14">
-                <SectionHeader title="Location" subtitle="Find us here" />
-                <LocationMap
-                  lat={
-                    branch.coordinates?.lat ||
-                    branch.canAddress?.coordinates?.lat
-                  }
-                  long={
-                    branch.coordinates?.long ||
-                    branch.canAddress?.coordinates?.lng
-                  }
-                  name={branch.name}
-                />
-              </section>
-            )}
+          {(branch.coordinates?.lat > 0 && branch.coordinates?.long > 0) ||
+          (branch.canAddress?.coordinates?.lat > 0 &&
+            branch.canAddress?.coordinates?.lng > 0) ? (
+            <section className="mb-14">
+              <SectionHeader title="Location" subtitle="Find us here" />
+              <LocationMap
+                lat={
+                  branch.coordinates?.lat || branch.canAddress?.coordinates?.lat
+                }
+                long={
+                  branch.coordinates?.long ||
+                  branch.canAddress?.coordinates?.lng
+                }
+                name={branch.name}
+              />
+            </section>
+          ) : null}
         </div>
       </div>
     </>
